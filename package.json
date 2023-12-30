@@ -1,0 +1,25 @@
+{
+  "name": "@encedeus/registry-js-api",
+  "version": "0.0.2",
+  "main": "./src/index.ts",
+
+  "publishConfig": {
+    "access": "public"
+  },
+
+  "dependencies": {
+    "axios": "^1.4.0",
+    "google-protobuf": "^3.21.2",
+    "ts-proto": "^1.156.7"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@types/axios": "^0.14.0",
+    "@types/google-protobuf": "^3.15.6",
+    "@typescript-eslint/eslint-plugin": "^5.61.0",
+    "@typescript-eslint/parser": "^5.61.0",
+    "eslint": "^8.44.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.1.6"
+  }
+}

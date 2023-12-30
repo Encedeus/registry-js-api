@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option go_package = "./go;protoapi";
+
+
+message GithubRepo {
+  string username = 1;
+  string repoName = 2;
+}
+
+message ErrorResponse {
+  string message = 1;
+}
+
+
