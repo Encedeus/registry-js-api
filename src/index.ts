@@ -9,3 +9,5 @@ export * from "./services/authService"
 export * from "./services/errors"
 export * from "./services/pluginService"
 export * from "./services/userService"
+
+export * from "./validation/userValidation"

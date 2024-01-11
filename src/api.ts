@@ -12,7 +12,7 @@ export class EncedeusRegistryApi {
     private readonly _authService: AuthService;
     private readonly _pluginService: PluginService;
 
-    private constructor(apiBaseURL: string, axiosConfig: object) {
+    public constructor(apiBaseURL: string, accessToken: string, axiosConfig: object) {
         this.axiosInstance = axios.create({
             baseURL: apiBaseURL,
             headers: {
@@ -20,25 +20,12 @@ export class EncedeusRegistryApi {
             },
             ...axiosConfig,
         });
+
+        this.AccessToken = accessToken
+
         this._usersService = new UserService(this.axiosInstance);
         this._authService = new AuthService(this.axiosInstance);
         this._pluginService = new PluginService(this.axiosInstance);
-    }
-
-    static Initialise(apiBaseURL: string, axiosConfig: object = {}) {
-        if (!this.instance) {
-            this.instance = new EncedeusRegistryApi(apiBaseURL, axiosConfig);
-        }
-
-        throw Error("api already initialised");
-    }
-
-    static get Instance() {
-        if (!this.instance) {
-            throw Error("api not initialised");
-        }
-
-        return this.instance;
     }
 
     get UsersService(): UserService {

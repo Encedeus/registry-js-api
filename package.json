@@ -1,6 +1,6 @@
 {
   "name": "@encedeus/registry-js-api",
-  "version": "0.0.3",
+  "version": "0.0.8",
   "main": "./src/index.ts",
 
   "publishConfig": {
