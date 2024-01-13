@@ -1,6 +1,6 @@
 import {AxiosInstance} from "axios";
 import {HttpError} from "./errors";
-import {EncedeusRegistryApi} from "../api";
+import {Callbacks, Config, EncedeusRegistryApi} from "../api";
 import {UserAuthorizeResponse, UserRegisterRequest, UserSignInRequest} from "../proto/auth_api";
 import {ErrorResponse} from "../proto/common";
 
@@ -22,10 +22,21 @@ export type SignOutResponse = {
 
 export class AuthService {
     private api: AxiosInstance;
+    private apiInstance: EncedeusRegistryApi;
+    private readonly callbacks: Callbacks
 
-    constructor(axiosInstance: AxiosInstance) {
+    constructor(axiosInstance: AxiosInstance, apiInstance: EncedeusRegistryApi, callbacks: Callbacks) {
         this.api = axiosInstance;
+        this.apiInstance = apiInstance;
+        this.callbacks = callbacks;
     }
+
+    private onAuthorisation(accessToken: string) {
+        this.callbacks.onAuth(accessToken);
+
+        this.apiInstance.accessToken = accessToken;
+    }
+
 
     async SignUp(req: UserRegisterRequest, setToken: boolean = true): Promise<SignInResponse> {
 
@@ -34,10 +45,11 @@ export class AuthService {
         if (resp.status === 201) {
 
             let response = resp.data as UserAuthorizeResponse;
-            EncedeusRegistryApi.Instance.AccessToken = response.accessToken;
+
+            this.onAuthorisation(response.accessToken);
 
             return {
-                response: resp.data as UserAuthorizeResponse
+                response: response
             };
         }
 
@@ -63,10 +75,11 @@ export class AuthService {
         if (resp.status === 200) {
 
             let response = resp.data as UserAuthorizeResponse;
-            EncedeusRegistryApi.Instance.AccessToken = response.accessToken;
+
+            this.onAuthorisation(response.accessToken);
 
             return {
-                response
+                response: response
             };
         }
 
@@ -102,10 +115,11 @@ export class AuthService {
 
         if (resp.status === 200) {
             let response = resp.data as UserAuthorizeResponse;
-            EncedeusRegistryApi.Instance.AccessToken = response.accessToken;
+
+            this.onAuthorisation(response.accessToken);
 
             return {
-                response
+                response: response
             };
         }
 
@@ -127,10 +141,10 @@ export class AuthService {
     }
 
     async SignOut(): Promise<SignOutResponse> {
-        const resp = await this.api.delete("/auth/signout").catch(err => err.response)
+        const resp = await this.api.delete("/auth/signout").catch(err => err.response);
 
         if (resp.status === 200) {
-            return
+            return;
         }
 
         let error: HttpError | undefined;

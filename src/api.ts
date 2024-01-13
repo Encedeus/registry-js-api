@@ -2,9 +2,17 @@ import axios, {AxiosInstance} from "axios";
 import {UserService} from "./services/userService";
 import {AuthService} from "./services/authService";
 import {PluginService} from "./services/pluginService";
+import {User} from "./proto/user_api";
+export type Callbacks = {
+    onAuth: (accessToken: string) => void
+    onUser: (user: User) => void
+}
 
+export type Config = {
+    axiosConfig: object
+    callbacks: Callbacks
+}
 export class EncedeusRegistryApi {
-    private static instance: EncedeusRegistryApi;
 
     private readonly axiosInstance: AxiosInstance;
 
@@ -12,21 +20,25 @@ export class EncedeusRegistryApi {
     private readonly _authService: AuthService;
     private readonly _pluginService: PluginService;
 
-    public constructor(apiBaseURL: string, accessToken: string, axiosConfig: object) {
+    private _accessToken: string
+
+    public constructor(apiBaseURL: string, accessToken: string, config: Config) {
         this.axiosInstance = axios.create({
             baseURL: apiBaseURL,
             headers: {
                 "Content-Type": "application/json",
             },
-            ...axiosConfig,
+            ...config.axiosConfig,
         });
 
-        this.AccessToken = accessToken
+        this._accessToken = accessToken
 
-        this._usersService = new UserService(this.axiosInstance);
-        this._authService = new AuthService(this.axiosInstance);
-        this._pluginService = new PluginService(this.axiosInstance);
+        this._usersService = new UserService(this.axiosInstance, this, config.callbacks);
+        this._authService = new AuthService(this.axiosInstance, this, config.callbacks);
+        this._pluginService = new PluginService(this.axiosInstance, this, config.callbacks);
     }
+
+    private
 
     get UsersService(): UserService {
         return this._usersService;
@@ -40,7 +52,12 @@ export class EncedeusRegistryApi {
         return this._pluginService;
     }
 
-    set AccessToken(accessToken: string) {
+    set accessToken(accessToken: string) {
+        this._accessToken = accessToken
         this.axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
+    }
+
+    get accessToken(): string {
+        return this._accessToken
     }
 }

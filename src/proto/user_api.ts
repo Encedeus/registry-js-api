@@ -19,10 +19,6 @@ export interface UserUpdateRequest {
   password: string;
 }
 
-export interface UserUpdateResponse {
-  user: User | undefined;
-}
-
 export interface UserFindOneResponse {
   user: User | undefined;
 }
@@ -250,63 +246,6 @@ export const UserUpdateRequest = {
     message.name = object.name ?? "";
     message.email = object.email ?? "";
     message.password = object.password ?? "";
-    return message;
-  },
-};
-
-function createBaseUserUpdateResponse(): UserUpdateResponse {
-  return { user: undefined };
-}
-
-export const UserUpdateResponse = {
-  encode(message: UserUpdateResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.user !== undefined) {
-      User.encode(message.user, writer.uint32(10).fork()).ldelim();
-    }
-    return writer;
-  },
-
-  decode(input: _m0.Reader | Uint8Array, length?: number): UserUpdateResponse {
-    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseUserUpdateResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          if (tag !== 10) {
-            break;
-          }
-
-          message.user = User.decode(reader, reader.uint32());
-          continue;
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skipType(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): UserUpdateResponse {
-    return { user: isSet(object.user) ? User.fromJSON(object.user) : undefined };
-  },
-
-  toJSON(message: UserUpdateResponse): unknown {
-    const obj: any = {};
-    if (message.user !== undefined) {
-      obj.user = User.toJSON(message.user);
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<UserUpdateResponse>, I>>(base?: I): UserUpdateResponse {
-    return UserUpdateResponse.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<UserUpdateResponse>, I>>(object: I): UserUpdateResponse {
-    const message = createBaseUserUpdateResponse();
-    message.user = (object.user !== undefined && object.user !== null) ? User.fromPartial(object.user) : undefined;
     return message;
   },
 };

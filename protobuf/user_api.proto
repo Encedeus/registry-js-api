@@ -20,10 +20,10 @@ message UserUpdateRequest {
   string email = 3;
   string password = 4;
 }
-
+/*
 message UserUpdateResponse {
   User user = 1;
-}
+}*/
 
 message UserFindOneResponse {
   User user = 1;
