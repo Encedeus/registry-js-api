@@ -29,10 +29,16 @@ export class UserService {
         this.callbacks = callbacks
     }
 
-    isAuthError(): HttpError {
+    private isAuthError(): HttpError {
         if (this.apiInstance.accessToken.length == 0) {
             return new HttpError(401, "unauthorized", "unauthorized");
         }
+    }
+
+    GetUserPfpURL(user: User) {
+        const baseUrl = this.api.defaults.baseURL
+
+        return `${baseUrl}/user/pfp/${user.id}`
     }
 
     async GetUser(userId: string): Promise<GetUserResponse> {
