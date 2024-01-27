@@ -1,5 +1,5 @@
 import {AxiosInstance} from "axios";
-import {HttpError} from "./errors";
+import {getErrorFromResponse, HttpError} from "./errors";
 import {Callbacks, Config, EncedeusRegistryApi} from "../api";
 import {UserAuthorizeResponse, UserRegisterRequest, UserSignInRequest} from "../proto/auth_api";
 import {ErrorResponse} from "../proto/common";
@@ -23,7 +23,7 @@ export type SignOutResponse = {
 export class AuthService {
     private api: AxiosInstance;
     private apiInstance: EncedeusRegistryApi;
-    private readonly callbacks: Callbacks
+    private readonly callbacks: Callbacks;
 
     constructor(axiosInstance: AxiosInstance, apiInstance: EncedeusRegistryApi, callbacks: Callbacks) {
         this.api = axiosInstance;
@@ -53,20 +53,7 @@ export class AuthService {
             };
         }
 
-        let error: HttpError | undefined;
-        const errorMessage = (resp.data as ErrorResponse).message;
-
-        switch (resp.status) {
-            case 400:
-                error = new HttpError(400, "bad request", errorMessage);
-                break;
-            case 500:
-                error = new HttpError(500, "internal server error", errorMessage);
-        }
-
-        return {
-            error
-        };
+        return {error: getErrorFromResponse(resp)};
     }
 
     async SignIn(req: UserSignInRequest, setToken: boolean = true): Promise<SignInResponse> {
@@ -83,30 +70,7 @@ export class AuthService {
             };
         }
 
-        let error: HttpError | undefined;
-        const errorMessage = (resp.data as ErrorResponse).message;
-
-        switch (resp.status) {
-            case 400:
-                error = new HttpError(400, "bad request", errorMessage);
-                break;
-            case 410:
-                error = new HttpError(410, "user deleted", errorMessage);
-                break;
-            case 404:
-                error = new HttpError(404, "user not found", errorMessage);
-                break;
-            case 401:
-                error = new HttpError(401, "incorrect password", errorMessage);
-                break;
-            case 500:
-                error = new HttpError(500, "internal server error", errorMessage);
-                break;
-        }
-
-        return {
-            error
-        };
+        return {error: getErrorFromResponse(resp)};
 
     }
 
@@ -123,42 +87,19 @@ export class AuthService {
             };
         }
 
-        let error: HttpError | undefined;
-        const errorMessage = (resp.data as ErrorResponse).message;
-
-        switch (resp.status) {
-            case 401:
-                error = new HttpError(401, "unauthorised", errorMessage);
-                break;
-            case 500:
-                error = new HttpError(500, "internal server error", errorMessage);
-                break;
-        }
-
-        return {
-            error
-        };
+        return {error: getErrorFromResponse(resp)};
     }
 
     async SignOut(): Promise<SignOutResponse> {
         const resp = await this.api.delete("/auth/signout").catch(err => err.response);
 
         if (resp.status === 200) {
-            return;
+            this.callbacks.onAuth("")
+            this.callbacks.onUser(undefined)
+            return {};
         }
 
-        let error: HttpError | undefined;
-        const errorMessage = (resp.data as ErrorResponse).message;
-
-        switch (resp.status) {
-            case 500:
-                error = new HttpError(500, "internal server error", errorMessage);
-                break;
-        }
-
-        return {
-            error
-        };
+        return {error: getErrorFromResponse(resp)};
 
     }
 }

@@ -1,7 +1,7 @@
 import {AxiosInstance} from "axios";
 import {Callbacks, EncedeusRegistryApi} from "../api";
 import * as process from "process";
-import {HttpError} from "./errors";
+import {getErrorFromResponse, HttpError, isUnauthorized} from "./errors";
 import {User, UserUpdateRequest} from "../proto/user_api";
 import {ErrorResponse} from "../proto/common";
 
@@ -29,12 +29,6 @@ export class UserService {
         this.callbacks = callbacks
     }
 
-    private isAuthError(): HttpError {
-        if (this.apiInstance.accessToken.length == 0) {
-            return new HttpError(401, "unauthorized", "unauthorized");
-        }
-    }
-
     GetUserPfpURL(user: User) {
         const baseUrl = this.api.defaults.baseURL
 
@@ -50,20 +44,7 @@ export class UserService {
             return {response};
         }
 
-        let error: HttpError | undefined;
-        const errorMessage = (resp.data as ErrorResponse).message;
-
-        switch (resp.status) {
-            case 404:
-                error = new HttpError(404, "not found", errorMessage);
-                break;
-            case 500:
-                error = new HttpError(500, "internal server error", errorMessage);
-        }
-
-        return {
-            error
-        };
+        return {error: getErrorFromResponse(resp)}
     }
 
     private onAuthorisation(accessToken: string) {
@@ -77,7 +58,7 @@ export class UserService {
 
     async GetSelf(): Promise<GetUserResponse> {
 
-        const authErr = this.isAuthError();
+        const authErr = isUnauthorized(this.apiInstance);
         if (authErr) {
             return {error: authErr};
         }
@@ -90,24 +71,11 @@ export class UserService {
             return {response};
         }
 
-        let error: HttpError | undefined;
-        const errorMessage = (resp.data as ErrorResponse).message;
-
-        switch (resp.status) {
-            case 401:
-                error = new HttpError(401, "unauthorized", errorMessage);
-                break;
-            case 500:
-                error = new HttpError(500, "internal server error", errorMessage);
-        }
-
-        return {
-            error
-        };
+        return {error: getErrorFromResponse(resp)}
     }
 
     async UpdateUser(req: UserUpdateRequest): Promise<UpdateUserResponse> {
-        const authErr = this.isAuthError();
+        const authErr = isUnauthorized(this.apiInstance);
         if (authErr) {
             return {error: authErr};
         }
@@ -120,33 +88,11 @@ export class UserService {
             return {response};
         }
 
-        let error: HttpError | undefined;
-        const errorMessage = (resp.data as ErrorResponse).message;
-
-        switch (resp.status) {
-            case 401:
-                error = new HttpError(resp.status, "unauthorized", errorMessage);
-                break;
-            case 410:
-                error = new HttpError(resp.status, "user deleted", errorMessage);
-                break;
-            case 409:
-                error = new HttpError(resp.status, "new field equals old", errorMessage);
-                break;
-            case 400:
-                error = new HttpError(resp.status, "bad request", errorMessage);
-                break;
-            case 500:
-                error = new HttpError(resp.status, "internal server error", errorMessage);
-        }
-
-        return {
-            error
-        };
+        return {error: getErrorFromResponse(resp)}
     }
 
     async DeleteSelf(): Promise<DeleteSelfResponse> {
-        const authErr = this.isAuthError();
+        const authErr = isUnauthorized(this.apiInstance);
         if (authErr) {
             return {error: authErr};
         }
@@ -156,25 +102,9 @@ export class UserService {
         if (resp.status == 200) {
             this.onUserUpdate(undefined)
             this.onAuthorisation("")
-            return
+            return {}
         }
 
-        let error: HttpError | undefined;
-        const errorMessage = (resp.data as ErrorResponse).message;
-
-        switch (resp.status) {
-            case 401:
-                error = new HttpError(resp.status, "unauthorized", errorMessage);
-                break;
-            case 400:
-                error = new HttpError(resp.status, "bad request", errorMessage);
-                break;
-            case 500:
-                error = new HttpError(resp.status, "internal server error", errorMessage);
-        }
-
-        return {
-            error
-        };
+        return {error: getErrorFromResponse(resp)}
     }
 }

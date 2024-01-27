@@ -1,6 +1,7 @@
 /* eslint-disable */
 import * as _m0 from "protobufjs/minimal";
 import { Timestamp } from "./google/protobuf/timestamp";
+import { Plugin } from "./plugin_api";
 
 export const protobufPackage = "";
 
@@ -11,6 +12,7 @@ export interface User {
   email: string;
   name: string;
   emailVerified: boolean;
+  plugins: Plugin[];
 }
 
 export interface UserUpdateRequest {
@@ -28,7 +30,7 @@ export interface UserFindManyResponse {
 }
 
 function createBaseUser(): User {
-  return { id: "", createdAt: undefined, updatedAt: undefined, email: "", name: "", emailVerified: false };
+  return { id: "", createdAt: undefined, updatedAt: undefined, email: "", name: "", emailVerified: false, plugins: [] };
 }
 
 export const User = {
@@ -50,6 +52,9 @@ export const User = {
     }
     if (message.emailVerified === true) {
       writer.uint32(48).bool(message.emailVerified);
+    }
+    for (const v of message.plugins) {
+      Plugin.encode(v!, writer.uint32(58).fork()).ldelim();
     }
     return writer;
   },
@@ -103,6 +108,13 @@ export const User = {
 
           message.emailVerified = reader.bool();
           continue;
+        case 7:
+          if (tag !== 58) {
+            break;
+          }
+
+          message.plugins.push(Plugin.decode(reader, reader.uint32()));
+          continue;
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -120,6 +132,7 @@ export const User = {
       email: isSet(object.email) ? globalThis.String(object.email) : "",
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       emailVerified: isSet(object.emailVerified) ? globalThis.Boolean(object.emailVerified) : false,
+      plugins: globalThis.Array.isArray(object?.plugins) ? object.plugins.map((e: any) => Plugin.fromJSON(e)) : [],
     };
   },
 
@@ -143,6 +156,9 @@ export const User = {
     if (message.emailVerified === true) {
       obj.emailVerified = message.emailVerified;
     }
+    if (message.plugins?.length) {
+      obj.plugins = message.plugins.map((e) => Plugin.toJSON(e));
+    }
     return obj;
   },
 
@@ -157,6 +173,7 @@ export const User = {
     message.email = object.email ?? "";
     message.name = object.name ?? "";
     message.emailVerified = object.emailVerified ?? false;
+    message.plugins = object.plugins?.map((e) => Plugin.fromPartial(e)) || [];
     return message;
   },
 };

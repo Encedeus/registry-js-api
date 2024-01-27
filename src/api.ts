@@ -14,7 +14,7 @@ export type Config = {
 }
 export class EncedeusRegistryApi {
 
-    private readonly axiosInstance: AxiosInstance;
+    public readonly axiosInstance: AxiosInstance; //todo: remove set to private in final
 
     private readonly _usersService: UserService;
     private readonly _authService: AuthService;
@@ -31,14 +31,12 @@ export class EncedeusRegistryApi {
             ...config.axiosConfig,
         });
 
-        this._accessToken = accessToken
+        this.accessToken = accessToken
 
         this._usersService = new UserService(this.axiosInstance, this, config.callbacks);
         this._authService = new AuthService(this.axiosInstance, this, config.callbacks);
         this._pluginService = new PluginService(this.axiosInstance, this, config.callbacks);
     }
-
-    private
 
     get UsersService(): UserService {
         return this._usersService;
