@@ -80,7 +80,7 @@ export class UserService {
             return {error: authErr};
         }
 
-        const resp = await this.api.patch("/user", req).catch(err => err.message);
+        const resp = await this.api.patch("/user", req).catch(err => err.response);
 
         if (resp.status == 200) {
             const response = resp.data as User;
