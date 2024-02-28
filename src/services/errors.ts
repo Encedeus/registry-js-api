@@ -21,9 +21,6 @@ export type ErrorCheckResponse = {
 }
 
 export function getErrorFromResponse(axiosResponse: any): HttpError {
-
-    console.log(axiosResponse);
-
     const errorMessage = (axiosResponse.data as ErrorResponse).message;
     const statusCode = axiosResponse.statusCode
 
